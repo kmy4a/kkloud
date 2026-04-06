@@ -1,0 +1,63 @@
+---
+- hosts: leaf
+  gather_facts: false
+  tasks:
+    - name: delete vpc
+      arista.eos.eos_config:
+        lines:
+          - "no vrf instance {{ vpc_name }}"
+
+    - name: disable ip routing on vpc
+      arista.eos.eos_config:
+        lines:
+          - "no ip routing vrf {{ vpc_name }}"
+
+    - name: remove vpc from vxlan config
+      arista.eos.eos_config:
+        lines: "no vxlan vrf {{ vpc_name }} vni {{ vpc_vni }}"
+        parents:
+          - interface Vxlan1
+
+    - name: remove vpc from bgp config
+      arista.eos.eos_config:
+        lines:
+          - "no vrf {{ vpc_name }}"
+        parents:
+          - "router bgp {{ bgp_asn }}"
+
+- hosts: border_leaf
+  gather_facts: false
+  tasks:
+    - name: delete vpc
+      arista.eos.eos_config:
+        lines:
+          - "no vrf instance {{ vpc_name }}"
+
+    - name: disable ip routing on vpc
+      arista.eos.eos_config:
+        lines:
+          - "no ip routing vrf {{ vpc_name }}"
+
+    - name: remove loopback for vpc
+      arista.eos.eos_config:
+        lines:
+          - "no interface Loopback{{ vpc_vni }}"
+
+    - name: delete default route for vpc
+      arista.eos.eos_static_routes:
+        config:
+          - vrf: "{{ vpc_name }}"
+            address_families:
+              - afi: ipv4
+                routes:
+                  - dest: 0.0.0.0/0
+                    next_hops:
+                      - interface: Loopback{{ vpc_vni }}
+        state: deleted
+
+    - name: remove vpc from bgp config
+      arista.eos.eos_config:
+        lines:
+          - "no vrf {{ vpc_name }}"
+        parents:
+          - "router bgp {{ bgp_asn }}"

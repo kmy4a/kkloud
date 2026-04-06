@@ -1,0 +1,32 @@
+---
+- hosts: leaf
+  gather_facts: false
+  tasks:
+    - name: create vlan
+      arista.eos.eos_vlans:
+        config:
+          - name: "{{ subnet_name }}"
+            vlan_id: "{{ subnet_vni }}"
+
+    - name: create vlan interface
+      arista.eos.eos_config:
+        lines:
+          - "vrf {{ vpc_name }}"
+          - "ip address virtual {{ subnet_cidr_block | ansible.utils.ipaddr('net') | ansible.utils.ipaddr('-2') }}"
+        parents:
+          - "interface Vlan{{ subnet_vni }}"
+
+    - name: append vlan to vxlan config
+      arista.eos.eos_config:
+        lines:
+          - "vxlan vlan {{ subnet_vni }} vni {{ subnet_vni }}"
+        parents:
+          - interface Vxlan1
+
+    - name: append vlan to bgp config
+      arista.eos.eos_config:
+        lines:
+          - "vlan add {{ subnet_vni }}"
+        parents:
+          - "router bgp {{ bgp_asn }}"
+          - "vlan-aware-bundle {{ vpc_name }}"

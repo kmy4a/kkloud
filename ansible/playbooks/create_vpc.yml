@@ -1,0 +1,85 @@
+---
+- hosts: leaf
+  gather_facts: false
+  tasks:
+    - name: create vpc
+      arista.eos.eos_config:
+        lines:
+          - "vrf instance {{ vpc_name }}"
+
+    - name: enable ip routing on vpc
+      arista.eos.eos_config:
+        lines:
+          - "ip routing vrf {{ vpc_name }}"
+
+    - name: append vpc to vxlan config
+      arista.eos.eos_config:
+        lines: "vxlan vrf {{ vpc_name }} vni {{ vpc_vni }}"
+        parents:
+          - interface Vxlan1
+
+    - name: append vpc to bgp config
+      arista.eos.eos_config:
+        lines:
+          - "rd {{ loopback_address }}:{{ vpc_vni }}"
+          - "route-target import {{ vpc_vni }}:{{ vpc_vni }}"
+          - "route-target export {{ vpc_vni }}:{{ vpc_vni }}"
+          - "redistribute connected"
+        parents:
+          - "router bgp {{ bgp_asn }}"
+          - "vrf {{ vpc_name }}"
+
+    - name: append vlan to bgp config
+      arista.eos.eos_config:
+        lines:
+          - "rd {{ loopback_address }}:{{ vpc_vni | int + 1 }}"
+          - "route-target both {{ vpc_vni | int + 1 }}:{{ vpc_vni | int + 1 }}"
+          - "redistribute learned"
+        parents:
+          - "router bgp {{ bgp_asn }}"
+          - "vlan-aware-bundle {{ vpc_name }}"
+
+
+- hosts: border_leaf
+  gather_facts: false
+  tasks:
+    - name: create vpc
+      arista.eos.eos_config:
+        lines:
+          - "vrf instance {{ vpc_name }}"
+
+    - name: enable ip routing on vpc
+      arista.eos.eos_config:
+        lines:
+          - "ip routing vrf {{ vpc_name }}"
+
+    - name: create loopback for vpc
+      arista.eos.eos_config:
+        lines:
+          - "vrf {{ vpc_name }}"
+          - "ip address 8.8.8.8/32"
+        parents:
+          - "interface Loopback{{ vpc_vni }}"
+
+    - name: create default route for vpc
+      arista.eos.eos_static_routes:
+        config:
+          - vrf: "{{ vpc_name }}"
+            address_families:
+              - afi: ipv4
+                routes:
+                  - dest: 0.0.0.0/0
+                    next_hops:
+                      - interface: Loopback{{ vpc_vni }}
+
+    - name: append vpc to bgp config
+      arista.eos.eos_config:
+        lines:
+          - "rd {{ loopback_address }}:{{ vpc_vni }}"
+          - "default-route export evpn"
+          - "route-target import {{ vpc_vni }}:{{ vpc_vni }}"
+          - "route-target export 65535:{{ vpc_vni }}"
+          - "redistribute static"
+        parents:
+          - "router bgp {{ bgp_asn }}"
+          - "vrf {{ vpc_name }}"

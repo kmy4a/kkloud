@@ -1,0 +1,11 @@
+---
+- hosts: leaf
+  gather_facts: false
+  tasks:
+    - name: Attach IGW to VPC
+      arista.eos.eos_config:
+        lines:
+          - "route-target import evpn 65535:{{ vpc_vni }}"
+        parents:
+          - "router bgp {{ bgp_asn }}"
+          - "vrf {{ vpc_name }}"

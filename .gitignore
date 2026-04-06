@@ -1,0 +1,22 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+# containerlab environments
+containerlab/clab-kkloud/
+sample_config/
+
+# ansible environments
+ansible/.vault_pass
+ansible/artifacts
+ansible/env/
+
+# personal memo
+memo/

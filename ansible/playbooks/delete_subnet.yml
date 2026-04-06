@@ -1,0 +1,29 @@
+---
+- hosts: leaf
+  gather_facts: false
+  tasks:
+    - name: delete vlan
+      arista.eos.eos_vlans:
+        config:
+          - name: "{{ subnet_name }}"
+            vlan_id: "{{ subnet_vni }}"
+        state: deleted
+
+    - name: delete vlan interface
+      arista.eos.eos_config:
+        lines:
+          - "no interface Vlan{{ subnet_vni }}"
+
+    - name: remove vlan from vxlan config
+      arista.eos.eos_config:
+        lines: "no vxlan vlan {{ subnet_vni }} vni {{ subnet_vni }}"
+        parents:
+          - interface Vxlan1
+
+    - name: remove vlan from bgp config
+      arista.eos.eos_config:
+        lines:
+          - "vlan remove {{ subnet_vni }}"
+        parents:
+          - "router bgp {{ bgp_asn }}"
+          - "vlan-aware-bundle {{ vpc_name }}"
