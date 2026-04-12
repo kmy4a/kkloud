@@ -1,10 +1,10 @@
 from fastapi import APIRouter
 from fastapi import HTTPException
-from ..domain.vpc_service import vpcs
-from ..domain.subnet_service import subnets
+from ..service.vpc_service import vpcs
+from ..service.subnet_service import subnets
 from ..infrastructure import fabric_infrastructure as fabric_infra
-from ..models.vpc_models import RequestVPC
-from ..models.subnet_models import RequestSubnet
+from ..model.vpc_models import RequestVPC
+from ..model.subnet_models import RequestSubnet
 
 
 router = APIRouter(prefix="/api/v1", tags=["VPCs API"])
@@ -79,7 +79,7 @@ async def delete_subnet(vpc_id: str, subnet_id: str):
 @router.get("/vpcs/{vpc_id}/igw")
 async def get_igw_states(vpc_id: str):
     vpc = vpcs.get(vpc_id)
-    return {"is_attached": vpc["is_attatched_to_igw"]}
+    return {"is_attached": vpc.is_attatched_to_igw}
 
 
 @router.post("/vpcs/{vpc_id}/igw")

@@ -7,9 +7,9 @@ class RequestSubnet(BaseModel):
     cidr_block: IPv4Network
 
 
-class Subnet(BaseModel):
+class Subnet(RequestSubnet):
     id: str
     vpc_id: str
     name: str
-    cidr_block: str
+    cidr_block: IPv4Network
     vni: int
