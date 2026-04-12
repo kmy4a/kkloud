@@ -4,15 +4,15 @@ import ansible_runner
 
 def create_subnet(subnet: Subnet, vpc: dict[str, str]):
     r = ansible_runner.run(
-        private_data_dir='../../ansible/',
-        playbook='playbooks/create_subnet.yml',
+        private_data_dir="../../ansible/",
+        playbook="playbooks/create_subnet.yml",
         extravars={
-            'vpc_name': vpc['name'],
-            'subnet_name': subnet.name,
-            'subnet_cidr_block': subnet.cidr_block,
-            'subnet_vni': subnet.vni
+            "vpc_name": vpc["name"],
+            "subnet_name": subnet.name,
+            "subnet_cidr_block": subnet.cidr_block,
+            "subnet_vni": subnet.vni,
         },
-        quiet=True
+        quiet=True,
     )
 
     if r.rc != 0:
@@ -21,13 +21,13 @@ def create_subnet(subnet: Subnet, vpc: dict[str, str]):
 
 def enable_route_table(subnet: Subnet, routes: list[dict[str, str]]):
     r = ansible_runner.run(
-        private_data_dir='../../ansible/',
-        playbook='playbooks/enable_route_table.yml',
+        private_data_dir="../../ansible/",
+        playbook="playbooks/enable_route_table.yml",
         extravars={
-            'subnet_name': subnet.name,
-            'subnet_cidr_block': subnet.cidr_block,
-            'subnet_vni': subnet.vni,
-            'routes': routes
+            "subnet_name": subnet.name,
+            "subnet_cidr_block": subnet.cidr_block,
+            "subnet_vni": subnet.vni,
+            "routes": routes,
         },
         # quiet=True
     )
@@ -35,17 +35,18 @@ def enable_route_table(subnet: Subnet, routes: list[dict[str, str]]):
     if r.rc != 0:
         raise RuntimeError(f"Failed to enable route table for Subnet: {subnet.id}")
 
+
 def delete_subnet(subnet: Subnet, vpc: dict[str, str]):
     r = ansible_runner.run(
-        private_data_dir='../../ansible/',
-        playbook='playbooks/delete_subnet.yml',
+        private_data_dir="../../ansible/",
+        playbook="playbooks/delete_subnet.yml",
         extravars={
-            'vpc_name': vpc['name'],
-            'subnet_name': subnet.name,
-            'subnet_cidr_block': subnet.cidr_block,
-            'subnet_vni': subnet.vni
+            "vpc_name": vpc["name"],
+            "subnet_name": subnet.name,
+            "subnet_cidr_block": subnet.cidr_block,
+            "subnet_vni": subnet.vni,
         },
-        quiet=True
+        quiet=True,
     )
 
     if r.rc != 0:

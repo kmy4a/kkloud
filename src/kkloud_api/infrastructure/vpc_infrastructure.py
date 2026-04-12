@@ -4,14 +4,14 @@ import ansible_runner
 
 def create_vpc(vpc: VPC) -> None:
     r = ansible_runner.run(
-        private_data_dir='../../ansible/',
-        playbook='playbooks/create_vpc.yml',
+        private_data_dir="../../ansible/",
+        playbook="playbooks/create_vpc.yml",
         extravars={
-            'vpc_name': vpc.name,
-            'vpc_cidr_block': vpc.cidr_block,
-            'vpc_vni': vpc.vni
+            "vpc_name": vpc.name,
+            "vpc_cidr_block": vpc.cidr_block,
+            "vpc_vni": vpc.vni,
         },
-        quiet=True
+        quiet=True,
     )
 
     if r.rc != 0:
@@ -20,14 +20,14 @@ def create_vpc(vpc: VPC) -> None:
 
 def delete_vpc(vpc: VPC) -> None:
     r = ansible_runner.run(
-        private_data_dir='../../ansible/',
-        playbook='playbooks/delete_vpc.yml',
+        private_data_dir="../../ansible/",
+        playbook="playbooks/delete_vpc.yml",
         extravars={
-            'vpc_name': vpc.name,
-            'vpc_cidr_block': vpc.cidr_block,
-            'vpc_vni': vpc.vni
+            "vpc_name": vpc.name,
+            "vpc_cidr_block": vpc.cidr_block,
+            "vpc_vni": vpc.vni,
         },
-        quiet=True
+        quiet=True,
     )
 
     if r.rc != 0:
@@ -36,12 +36,12 @@ def delete_vpc(vpc: VPC) -> None:
 
 def attach_igw(vpc: VPC) -> None:
     r = ansible_runner.run(
-        private_data_dir='../../ansible/',
-        playbook='playbooks/attach_igw.yml',
+        private_data_dir="../../ansible/",
+        playbook="playbooks/attach_igw.yml",
         extravars={
-            'vpc_name': vpc.name,
-            'vpc_cidr_block': vpc.cidr_block,
-            'vpc_vni': vpc.vni
+            "vpc_name": vpc.name,
+            "vpc_cidr_block": vpc.cidr_block,
+            "vpc_vni": vpc.vni,
         },
         # quiet=True
     )
@@ -52,12 +52,12 @@ def attach_igw(vpc: VPC) -> None:
 
 def detach_igw(vpc: VPC) -> None:
     r = ansible_runner.run(
-        private_data_dir='../../ansible/',
-        playbook='playbooks/detach_igw.yml',
+        private_data_dir="../../ansible/",
+        playbook="playbooks/detach_igw.yml",
         extravars={
-            'vpc_name': vpc.name,
-            'vpc_cidr_block': vpc.cidr_block,
-            'vpc_vni': vpc.vni
+            "vpc_name": vpc.name,
+            "vpc_cidr_block": vpc.cidr_block,
+            "vpc_vni": vpc.vni,
         },
         # quiet=True
     )

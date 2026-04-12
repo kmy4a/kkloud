@@ -20,7 +20,7 @@ async def get_fabric_status():
     try:
         fabric_infra.ping_to_fabric()
         return {"is_alive": True}
-    except RuntimeError as e:
+    except RuntimeError:
         return {"is_alive": False}
 
 
@@ -79,7 +79,7 @@ async def delete_subnet(vpc_id: str, subnet_id: str):
 @router.get("/vpcs/{vpc_id}/igw")
 async def get_igw_states(vpc_id: str):
     vpc = vpcs.get(vpc_id)
-    return {"is_attached": vpc['is_attatched_to_igw']}
+    return {"is_attached": vpc["is_attatched_to_igw"]}
 
 
 @router.post("/vpcs/{vpc_id}/igw")
