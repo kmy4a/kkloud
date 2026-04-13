@@ -22,8 +22,8 @@
       arista.eos.eos_config:
         lines:
           - "rd {{ loopback_address }}:{{ vpc_vni }}"
-          - "route-target import {{ vpc_vni }}:{{ vpc_vni }}"
-          - "route-target export {{ vpc_vni }}:{{ vpc_vni }}"
+          - "route-target import evpn {{ vpc_vni }}:{{ vpc_vni }}"
+          - "route-target export evpn {{ vpc_vni }}:{{ vpc_vni }}"
           - "redistribute connected"
         parents:
           - "router bgp {{ bgp_asn }}"
@@ -53,6 +53,12 @@
         lines:
           - "ip routing vrf {{ vpc_name }}"
 
+    - name: append vpc to vxlan config
+      arista.eos.eos_config:
+        lines: "vxlan vrf {{ vpc_name }} vni {{ vpc_vni }}"
+        parents:
+          - interface Vxlan1
+
     - name: create loopback for vpc
       arista.eos.eos_config:
         lines:
@@ -77,8 +83,8 @@
         lines:
           - "rd {{ loopback_address }}:{{ vpc_vni }}"
           - "default-route export evpn"
-          - "route-target import {{ vpc_vni }}:{{ vpc_vni }}"
-          - "route-target export 65535:{{ vpc_vni }}"
+          - "route-target import evpn {{ vpc_vni }}:{{ vpc_vni }}"
+          - "route-target export evpn 65535:{{ vpc_vni }}"
           - "redistribute static"
         parents:
           - "router bgp {{ bgp_asn }}"

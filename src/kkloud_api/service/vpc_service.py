@@ -48,7 +48,7 @@ class VPCs:
             id=f"vpc-{uuid.uuid4()}",
             name=request_vpc.name,
             cidr_block=request_vpc.cidr_block,
-            vni=len(self.vpcs) + 1000,
+            vni=1 if len(self.vpcs) == 0 else len(self.vpcs) * 1000,
             is_attached_to_igw=False,
         )
 
