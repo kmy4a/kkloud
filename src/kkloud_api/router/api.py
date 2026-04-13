@@ -79,7 +79,7 @@ async def delete_subnet(vpc_id: str, subnet_id: str):
 @router.get("/vpcs/{vpc_id}/igw")
 async def get_igw_states(vpc_id: str):
     vpc = vpcs.get(vpc_id)
-    return {"is_attached": vpc.is_attatched_to_igw}
+    return {"is_attached": vpc.is_attached_to_igw}
 
 
 @router.post("/vpcs/{vpc_id}/igw")

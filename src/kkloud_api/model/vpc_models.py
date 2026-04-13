@@ -12,4 +12,4 @@ class VPC(RequestVPC):
     name: str
     cidr_block: IPv4Network
     vni: int
-    is_attatched_to_igw: bool
+    is_attached_to_igw: bool

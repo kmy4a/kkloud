@@ -31,10 +31,10 @@ class VPCs:
         Raises:
             ValueError: If the VPC with the specified ID is not found.
         """
-        vpc = next((vpc for vpc in self.vpcs if vpc.id == vpc_id), None)
-        if not vpc:
-            raise ValueError(f"VPC with id {vpc_id} not found")
-        return vpc
+        for vpc in self.vpcs:
+            if vpc.id == vpc_id:
+                return vpc
+        raise ValueError(f"VPC with id {vpc_id} not found")
 
     def add(self, request_vpc: RequestVPC) -> str:
         """Add a new VPC based on the provided request data.
@@ -44,22 +44,22 @@ class VPCs:
         Raises:
             RuntimeError: If the VPC creation fails.
         """
-        vpc_obj = VPC(
-            id="vpc-" + str(uuid.uuid4()),
+        vpc = VPC(
+            id=f"vpc-{uuid.uuid4()}",
             name=request_vpc.name,
             cidr_block=request_vpc.cidr_block,
-            vni=self.vpcs.__len__() + 1000,
-            is_attatched_to_igw=False,
+            vni=len(self.vpcs) + 1000,
+            is_attached_to_igw=False,
         )
 
         try:
-            vpcs_infra.create_vpc(vpc_obj)
+            vpcs_infra.create_vpc(vpc)
         except RuntimeError:
-            raise RuntimeError(f"Failed to create VPC with id {vpc_obj.id}")
+            raise RuntimeError(f"Failed to create VPC with id {vpc.id}")
 
-        self.vpcs.append(vpc_obj)
+        self.vpcs.append(vpc)
         self._save()
-        return vpc_obj.id
+        return vpc.id
 
     def delete(self, vpc_id: str) -> None:
         """Delete a VPC by its ID.
@@ -67,31 +67,21 @@ class VPCs:
         Raises:
             ValueError: If the VPC with the specified ID is not found.
         """
-        if not any(vpc.id == vpc_id for vpc in self.vpcs):
-            raise ValueError(f"VPC with id {vpc_id} not found")
+        vpc = None
+        for v in self.vpcs:
+            if v.id == vpc_id:
+                vpc = v
+                break
 
-        vpc = VPC(
-            id=vpc_id,
-            name=next(vpc.name for vpc in self.vpcs if vpc.id == vpc_id),
-            cidr_block=next(
-                vpc.cidr_block for vpc in self.vpcs if vpc.id == vpc_id
-            ),
-            vni=int(next(vpc.vni for vpc in self.vpcs if vpc.id == vpc_id)),
-            is_attatched_to_igw=bool(
-                next(
-                    vpc.is_attatched_to_igw
-                    for vpc in self.vpcs
-                    if vpc.id == vpc_id
-                )
-            ),
-        )
+        if vpc is None:
+            raise ValueError(f"VPC with id {vpc_id} not found")
 
         try:
             vpcs_infra.delete_vpc(vpc)
         except RuntimeError:
             raise RuntimeError(f"Failed to delete VPC with id {vpc_id}")
 
-        self.vpcs = [vpc for vpc in self.vpcs if vpc.id != vpc_id]
+        self.vpcs = [v for v in self.vpcs if v.id != vpc_id]
         self._save()
 
     def attach_igw(self, vpc_id: str) -> None:
@@ -101,7 +91,7 @@ class VPCs:
             RuntimeError: If the VPC is already attached to an IGW.
         """
         vpc = self.get(vpc_id)
-        if vpc.is_attatched_to_igw:
+        if vpc.is_attached_to_igw:
             raise RuntimeError(f"VPC with id {vpc_id} is already attached to IGW")
 
         vpc_obj = VPC(
@@ -109,7 +99,7 @@ class VPCs:
             name=vpc.name,
             cidr_block=vpc.cidr_block,
             vni=vpc.vni,
-            is_attatched_to_igw=True,
+            is_attached_to_igw=True,
         )
 
         try:
@@ -129,7 +119,7 @@ class VPCs:
             RuntimeError: If the VPC is not attached to an IGW.
         """
         vpc = self.get(vpc_id)
-        if not vpc.is_attatched_to_igw:
+        if not vpc.is_attached_to_igw:
             raise RuntimeError(f"VPC with id {vpc_id} is not attached to IGW")
 
         vpc_obj = VPC(
@@ -137,7 +127,7 @@ class VPCs:
             name=vpc.name,
             cidr_block=vpc.cidr_block,
             vni=vpc.vni,
-            is_attatched_to_igw=False,
+            is_attached_to_igw=False,
         )
 
         try:
