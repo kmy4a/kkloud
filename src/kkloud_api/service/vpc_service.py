@@ -1,6 +1,6 @@
 import uuid
 from ..model.vpc_models import VPC, RequestVPC
-from ..infrastructure import vpc_infrastructure as vpcs_infra
+from ..infrastructure import vpc_runner as vpcs_infra
 from ..infrastructure.vpc_loader import vpc_loader
 from ..infrastructure.subnet_loader import subnet_loader
 from ..infrastructure.logger import logger

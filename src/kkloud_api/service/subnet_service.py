@@ -2,7 +2,7 @@ import uuid
 from ipaddress import IPv4Network
 from ..model.subnet_models import Subnet, RequestSubnet
 from ..model.vpc_models import VPC
-from ..infrastructure import subnet_infrastructure as subnet_infra
+from ..infrastructure import subnet_runner as subnet_infra
 from ..infrastructure.subnet_loader import subnet_loader
 from ..infrastructure.vpc_loader import vpc_loader
 from ..infrastructure.logger import logger

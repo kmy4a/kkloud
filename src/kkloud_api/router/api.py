@@ -2,7 +2,7 @@ from fastapi import APIRouter
 from fastapi import HTTPException
 from ..service.vpc_service import vpcs
 from ..service.subnet_service import subnets
-from ..infrastructure import fabric_infrastructure as fabric_infra
+from ..infrastructure import fabric_runner as fabric_infra
 from ..model.vpc_models import RequestVPC
 from ..model.subnet_models import RequestSubnet
 from ..exceptions import *
