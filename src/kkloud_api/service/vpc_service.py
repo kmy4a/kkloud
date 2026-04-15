@@ -3,6 +3,7 @@ from ..model.vpc_models import VPC, RequestVPC
 from ..infrastructure import vpc_infrastructure as vpcs_infra
 from ..infrastructure.vpc_loader import vpc_loader
 from ..infrastructure.subnet_loader import subnet_loader
+from ..infrastructure.logger import logger
 from ..exceptions import *
 
 
@@ -11,6 +12,7 @@ class VPCs:
         """Initialize the VPCs service with the specified data file."""
         self.vpc_loader = vpc_loader
         self.subnet_loader = subnet_loader
+        self.logger = logger
 
     def get_all(self) -> list[VPC]:
         """Return a list of all VPCs."""
@@ -27,7 +29,7 @@ class VPCs:
                 return vpc
         raise VPCNotFoundError(f"VPC with id {vpc_id} not found")
 
-    def add(self, request_vpc: RequestVPC) -> str:
+    async def add(self, request_vpc: RequestVPC) -> str:
         """Add a new VPC based on the provided request data.
 
         Returns:
@@ -44,14 +46,15 @@ class VPCs:
         )
 
         try:
-            vpcs_infra.create_vpc(vpc)
+            await vpcs_infra.create_vpc(vpc)
         except RuntimeError:
             raise RuntimeError(f"Failed to create VPC with id {vpc.id}")
 
         self.vpc_loader.add(vpc)
+        self.logger.info(f"Created VPC with id {vpc.id}")
         return vpc.id
 
-    def delete(self, vpc_id: str) -> None:
+    async def delete(self, vpc_id: str) -> None:
         """Delete a VPC by its ID.
 
         Raises:
@@ -73,13 +76,14 @@ class VPCs:
             raise VPCDeletionError(f"Cannot delete VPC with id {vpc_id} because it has associated subnets. Please delete the subnets first.")
 
         try:
-            vpcs_infra.delete_vpc(vpc)
+            await vpcs_infra.delete_vpc(vpc)
         except RuntimeError:
             raise RuntimeError(f"Failed to delete VPC with id {vpc_id}")
 
         self.vpc_loader.delete(vpc_id)
+        self.logger.info(f"Deleted VPC with id {vpc.id}")
 
-    def attach_igw(self, vpc_id: str) -> None:
+    async def attach_igw(self, vpc_id: str) -> None:
         """Attach an Internet Gateway (IGW) to a VPC.
 
         Raises:
@@ -91,14 +95,15 @@ class VPCs:
             raise ValueError(f"VPC with id {vpc_id} is already attached to IGW")
 
         try:
-            vpcs_infra.attach_igw(vpc)
+            await vpcs_infra.attach_igw(vpc)
         except RuntimeError:
             raise RuntimeError(f"Failed to attach IGW to VPC with id {vpc_id}")
 
         vpc.is_attached_to_igw = True
         self.vpc_loader.update(vpc)
+        self.logger.info(f"Attached IGW to VPC with id {vpc.id}")
 
-    def detach_igw(self, vpc_id: str) -> None:
+    async def detach_igw(self, vpc_id: str) -> None:
         """Detach an Internet Gateway (IGW) from a VPC.
 
         Raises:
@@ -110,12 +115,13 @@ class VPCs:
             raise ValueError(f"VPC with id {vpc_id} is not attached to IGW")
 
         try:
-            vpcs_infra.detach_igw(vpc)
+            await vpcs_infra.detach_igw(vpc)
         except RuntimeError:
             raise RuntimeError(f"Failed to detach IGW from VPC with id {vpc_id}")
 
         vpc.is_attached_to_igw = False
         self.vpc_loader.update(vpc)
+        self.logger.info(f"Detached IGW from VPC with id {vpc.id}")
 
 
 vpcs = VPCs()

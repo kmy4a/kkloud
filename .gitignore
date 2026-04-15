@@ -20,3 +20,6 @@ ansible/env/
 
 # personal memo
 memo/
+
+# Logs
+src/kkloud_api/logs/*.log

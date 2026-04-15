@@ -5,6 +5,7 @@ from ..model.vpc_models import VPC
 from ..infrastructure import subnet_infrastructure as subnet_infra
 from ..infrastructure.subnet_loader import subnet_loader
 from ..infrastructure.vpc_loader import vpc_loader
+from ..infrastructure.logger import logger
 from ..exceptions import *
 
 
@@ -13,6 +14,7 @@ class Subnets:
         """Initialize the Subnets service with the specified data file."""
         self.vpc_loader = vpc_loader
         self.subnet_loader = subnet_loader
+        self.logger = logger
 
     def get_all(self, vpc_id: str) -> list[Subnet]:
         """Return a list of all Subnets for a given VPC ID."""
@@ -80,6 +82,7 @@ class Subnets:
             raise RuntimeError(f"Failed to create Subnet with id {subnet_obj.id} in VPC {vpc_id}")
 
         self.subnet_loader.add(subnet_obj)
+        self.logger.info(f"Created Subnet with id {subnet_obj.id} in VPC {vpc_id}")
         return subnet_obj.id
 
     def delete(self, vpc_id: str, subnet_id: str) -> None:
@@ -114,6 +117,7 @@ class Subnets:
             )
 
         self.subnet_loader.delete(subnet_id)
+        self.logger.info(f"Deleted Subnet with id {subnet_id} in VPC {vpc_id}")
 
 
 subnets = Subnets()

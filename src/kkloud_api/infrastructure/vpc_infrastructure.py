@@ -2,7 +2,7 @@ from ..model.vpc_models import VPC
 import ansible_runner
 
 
-def create_vpc(vpc: VPC) -> None:
+async def create_vpc(vpc: VPC) -> None:
     """Create a VPC using Ansible playbook with the given VPC details.
 
     Raises:
@@ -23,7 +23,7 @@ def create_vpc(vpc: VPC) -> None:
         raise RuntimeError(f"Failed to create VPC: {vpc.id}")
 
 
-def delete_vpc(vpc: VPC) -> None:
+async def delete_vpc(vpc: VPC) -> None:
     """Delete a VPC using Ansible playbook with the given VPC details.
 
     Raises:
@@ -44,7 +44,7 @@ def delete_vpc(vpc: VPC) -> None:
         raise RuntimeError(f"Failed to delete VPC: {vpc.id}")
 
 
-def attach_igw(vpc: VPC) -> None:
+async def attach_igw(vpc: VPC) -> None:
     """Attach an Internet Gateway (IGW) to a VPC using Ansible playbook with the given VPC details.
 
     Raises:
@@ -65,7 +65,7 @@ def attach_igw(vpc: VPC) -> None:
         raise RuntimeError(f"Failed to attach IGW to VPC: {vpc.id}")
 
 
-def detach_igw(vpc: VPC) -> None:
+async def detach_igw(vpc: VPC) -> None:
     """Detach an Internet Gateway (IGW) from a VPC using Ansible playbook with the given VPC details.
 
     Raises:
