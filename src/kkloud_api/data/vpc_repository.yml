@@ -1,6 +1,1 @@
-vpcs:
-- cidr_block: 10.0.0.0/16
-  id: vpc-ee240cae-354b-4ee5-a214-5f7560ccfbe6
-  is_attatched_to_igw: true
-  name: vpc-test
-  vni: 1000
+vpcs: []
