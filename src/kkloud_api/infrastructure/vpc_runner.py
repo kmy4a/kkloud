@@ -58,7 +58,7 @@ async def attach_igw(vpc: VPC) -> None:
             "vpc_cidr_block": str(vpc.cidr_block),
             "vpc_vni": vpc.vni,
         },
-        quiet=True
+        quiet=True,
     )
 
     if r.rc != 0:
@@ -79,7 +79,7 @@ async def detach_igw(vpc: VPC) -> None:
             "vpc_cidr_block": str(vpc.cidr_block),
             "vpc_vni": vpc.vni,
         },
-        quiet=True
+        quiet=True,
     )
 
     if r.rc != 0:

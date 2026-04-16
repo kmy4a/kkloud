@@ -4,7 +4,7 @@ from ..infrastructure import vpc_runner as vpcs_infra
 from ..infrastructure.vpc_loader import vpc_loader
 from ..infrastructure.subnet_loader import subnet_loader
 from ..infrastructure.logger import logger
-from ..exceptions import *
+from ..exceptions import VPCNotFoundError, VPCDeletionError
 
 
 class VPCs:
@@ -41,7 +41,9 @@ class VPCs:
             id=f"vpc-{uuid.uuid4()}",
             name=request_vpc.name,
             cidr_block=request_vpc.cidr_block,
-            vni=1 if len(self.vpc_loader.vpcs) == 0 else len(self.vpc_loader.vpcs) * 1000,
+            vni=1
+            if len(self.vpc_loader.vpcs) == 0
+            else len(self.vpc_loader.vpcs) * 1000,
             is_attached_to_igw=False,
         )
 
@@ -71,9 +73,13 @@ class VPCs:
         if vpc is None:
             raise VPCNotFoundError(f"VPC with id {vpc_id} not found")
 
-        subnets_in_vpc = [subnet for subnet in self.subnet_loader.subnets if subnet.vpc_id == vpc_id]
+        subnets_in_vpc = [
+            subnet for subnet in self.subnet_loader.subnets if subnet.vpc_id == vpc_id
+        ]
         if subnets_in_vpc:
-            raise VPCDeletionError(f"Cannot delete VPC with id {vpc_id} because it has associated subnets. Please delete the subnets first.")
+            raise VPCDeletionError(
+                f"Cannot delete VPC with id {vpc_id} because it has associated subnets. Please delete the subnets first."
+            )
 
         try:
             await vpcs_infra.delete_vpc(vpc)
