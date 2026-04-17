@@ -2,10 +2,15 @@ from fastapi import APIRouter
 from fastapi import HTTPException
 from ..service.vpc_service import vpcs
 from ..service.subnet_service import subnets
-from ..infrastructure import fabric_runner as fabric_infra
+from ..service.fabric_service import fabrics
 from ..model.vpc_models import RequestVPC
 from ..model.subnet_models import RequestSubnet
-from ..exceptions import *
+from ..exceptions import (
+    VPCNotFoundError,
+    VPCDeletionError,
+    SubnetInvalidCIDRError,
+    SubnetNotFoundError,
+)
 
 
 router = APIRouter(prefix="/api/v1", tags=["VPCs API"])
@@ -13,16 +18,16 @@ router = APIRouter(prefix="/api/v1", tags=["VPCs API"])
 
 @router.get("/api_health")
 async def get_status():
-    return {"is_alive": True}
+    return {"is_healthy": True}
 
 
 @router.get("/fabric_health")
-async def get_fabric_status():
+async def get_fabric_health():
     try:
-        fabric_infra.ping_to_fabric()
-        return {"is_alive": True}
+        fabrics.health_check()
+        return {"is_healthy": True}
     except RuntimeError:
-        return {"is_alive": False}
+        return {"is_healthy": False}
 
 
 @router.get("/vpcs")
@@ -39,7 +44,7 @@ async def create_vpc(vpc: RequestVPC):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.delete("/vpcs/{vpc_id}")
+@router.delete("/vpcs/{vpc_id}", status_code=204)
 async def delete_vpc(vpc_id: str):
     try:
         await vpcs.delete(vpc_id)
@@ -57,7 +62,7 @@ async def get_subnets(vpc_id: str):
     return {"subnets": subnets.get_all(vpc_id)}
 
 
-@router.post("/vpcs/{vpc_id}/subnets")
+@router.post("/vpcs/{vpc_id}/subnets", status_code=201)
 async def create_subnet(vpc_id: str, request_subnet: RequestSubnet):
     try:
         id: str = subnets.add(vpc_id, request_subnet)
@@ -70,7 +75,7 @@ async def create_subnet(vpc_id: str, request_subnet: RequestSubnet):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.delete("/vpcs/{vpc_id}/subnets/{subnet_id}")
+@router.delete("/vpcs/{vpc_id}/subnets/{subnet_id}", status_code=204)
 async def delete_subnet(vpc_id: str, subnet_id: str):
     try:
         subnets.delete(vpc_id, subnet_id)
@@ -87,7 +92,7 @@ async def get_igw_states(vpc_id: str):
     return {"is_attached": vpc.is_attached_to_igw}
 
 
-@router.post("/vpcs/{vpc_id}/igw")
+@router.post("/vpcs/{vpc_id}/igw", status_code=201)
 async def attach_igw(vpc_id: str):
     try:
         await vpcs.attach_igw(vpc_id)
@@ -98,7 +103,7 @@ async def attach_igw(vpc_id: str):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.delete("/vpcs/{vpc_id}/igw")
+@router.delete("/vpcs/{vpc_id}/igw", status_code=204)
 async def detach_igw(vpc_id: str):
     try:
         await vpcs.detach_igw(vpc_id)

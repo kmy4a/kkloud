@@ -17,7 +17,9 @@ class SubnetLoader:
     def _save(self) -> None:
         """Save the current list of Subnets to the YAML file."""
         with open(self._data_file, "w") as file:
-            yaml.dump({"subnets": [subnet.model_dump() for subnet in self.subnets]}, file)
+            yaml.dump(
+                {"subnets": [subnet.model_dump() for subnet in self.subnets]}, file
+            )
 
     def add(self, subnet: Subnet) -> None:
         """Add a new Subnet to the list and save it to the YAML file."""
