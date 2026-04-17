@@ -75,6 +75,10 @@ class Subnets:
                 f"Subnet CIDR block {request_subnet.cidr_block} overlaps with existing subnets in VPC {vpc_id}"
             )
 
+        # Validate Subnet quantity does not exceed limit (64 subnets per VPC)
+        if len(self.get_all(vpc_id)) >= 64:
+            raise RuntimeError(f"Maximum number of subnets (64) exceeded for VPC {vpc_id}")
+
         subnet_obj = Subnet(
             id="subnet-" + str(uuid.uuid4()),
             vpc_id=vpc_id,

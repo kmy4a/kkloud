@@ -43,7 +43,7 @@ class VPCs:
             cidr_block=request_vpc.cidr_block,
             vni=1
             if len(self.vpc_loader.vpcs) == 0
-            else len(self.vpc_loader.vpcs) * 1000,
+            else len(self.vpc_loader.vpcs) * 100,
             is_attached_to_igw=False,
         )
 
