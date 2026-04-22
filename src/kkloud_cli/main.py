@@ -107,7 +107,7 @@ def add_subnet(vpc_id: str, name: str, cidr_block: str):
 
 def delete_subnet(vpc_id: str, subnet_id: str):
     r = requests.delete(f"{URL}/vpcs/{vpc_id}/subnets/{subnet_id}")
-    print("VPC deleted successfully" if r.status_code == 204 else json.dumps(r.json(), indent=2))
+    print("Subnet deleted successfully" if r.status_code == 204 else json.dumps(r.json(), indent=2))
 
 
 def attach_igw(vpc_id: str):

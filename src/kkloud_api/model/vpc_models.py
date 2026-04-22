@@ -9,8 +9,6 @@ class RequestVPC(BaseModel):
 
 class VPC(RequestVPC):
     id: str
-    name: str
-    cidr_block: IPv4Network
     vni: int
     is_attached_to_igw: bool
 
