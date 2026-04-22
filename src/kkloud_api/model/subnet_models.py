@@ -10,8 +10,6 @@ class RequestSubnet(BaseModel):
 class Subnet(RequestSubnet):
     id: str
     vpc_id: str
-    name: str
-    cidr_block: IPv4Network
     vni: int
 
     @field_serializer("cidr_block")
