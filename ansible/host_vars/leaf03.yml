@@ -1,4 +1,6 @@
 ---
+loopback_address: 10.255.0.13
+bgp_asn: 65013
 ansible_user: admin
 ansible_password: !vault |
           $ANSIBLE_VAULT;1.1;AES256
